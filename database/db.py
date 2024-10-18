@@ -4,6 +4,8 @@ import sqlite3
 def init_auth_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+    
+    # Create users table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
@@ -11,6 +13,8 @@ def init_auth_db():
             password TEXT
         )
     ''')
+
+    # Create extracted_text table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS extracted_text (
             id INTEGER PRIMARY KEY,
@@ -19,6 +23,20 @@ def init_auth_db():
             FOREIGN KEY (username) REFERENCES users (username)
         )
     ''')
+
+    # Create medicine_schedule table if it doesn't exist
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS medicine_schedule (
+            id INTEGER PRIMARY KEY,
+            username TEXT,
+            medicine_name TEXT,
+            morning BOOLEAN,
+            afternoon BOOLEAN,
+            night BOOLEAN,
+            FOREIGN KEY (username) REFERENCES users (username)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -51,3 +69,35 @@ def store_extracted_text(username, text):
     cursor.execute("INSERT INTO extracted_text (username, text) VALUES (?, ?)", (username, text))
     conn.commit()
     conn.close()
+
+# Function to store medicine schedule for a user
+def store_medicine_schedule(username, medicine_schedule):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO medicine_schedule (username, medicine_name, morning, afternoon, night)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (username, medicine_schedule['medicine_name'], medicine_schedule['morning'], medicine_schedule['afternoon'], medicine_schedule['night']))
+    conn.commit()
+    conn.close()
+
+# Function to get the medicine schedule for a user
+def get_medicine_schedule(username):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT medicine_name, morning, afternoon, night FROM medicine_schedule WHERE username = ?
+    ''', (username,))
+    schedule = cursor.fetchall()
+    conn.close()
+    
+    # Return the schedule as a list of dictionaries
+    return [
+        {
+            'medicine_name': row[0],
+            'morning': bool(row[1]),
+            'afternoon': bool(row[2]),
+            'night': bool(row[3])
+        }
+        for row in schedule
+    ]

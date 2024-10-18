@@ -7,9 +7,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import streamlit as st
 from backend.ocr import extract_text_from_image
 from backend.reminders import text_to_speech_reminder
-from database.db import init_auth_db, register_user, login_user, store_extracted_text
+from database.db import init_auth_db, register_user, login_user, store_extracted_text, store_medicine_schedule, get_medicine_schedule
 from backend.audio_to_text import convert_audio_to_text  # Assume you have this function defined
 from backend.pdf_to_text import convert_pdf_to_text  # Assume you have this function defined
+from database.db import get_medicine_schedule
+
+
 
 # Initialize the authentication database
 init_auth_db()
@@ -32,6 +35,43 @@ if page == "Home":
     if st.session_state['logged_in']:
         st.title("Welcome to Medicine Reminder App!")
         st.write("This is your home page. Please use the features provided.")
+
+        st.header("Add Medication Schedule")
+        with st.form("medicine_form"):
+            medicine_name = st.text_input("Enter the medicine name")
+            morning_dose = st.checkbox("Morning")
+            afternoon_dose = st.checkbox("Afternoon")
+            night_dose = st.checkbox("Night")
+            submitted = st.form_submit_button("Add Medicine")
+
+        if submitted:
+            # Store the medication schedule in the database or session
+            if medicine_name:
+                medicine_schedule = {
+                    "medicine_name": medicine_name,
+                    "morning": morning_dose,
+                    "afternoon": afternoon_dose,
+                    "night": night_dose
+                }
+                # Store the schedule in the database (implement store_medicine_schedule in db module)
+                store_medicine_schedule(st.session_state['user'], medicine_schedule)
+                st.success(f"Medicine '{medicine_name}' schedule added successfully!")
+            else:
+                st.error("Please enter a valid medicine name.")
+
+        # Display current medication schedule (if any)
+        st.header("Your Medication Schedule")
+        schedule = get_medicine_schedule(st.session_state['user'])  # Assume you have a function to retrieve the schedule
+
+        if schedule:
+            for item in schedule:
+                st.write(f"**Medicine**: {item['medicine_name']}")
+                st.write(f"Morning: {'Yes' if item['morning'] else 'No'}")
+                st.write(f"Afternoon: {'Yes' if item['afternoon'] else 'No'}")
+                st.write(f"Night: {'Yes' if item['night'] else 'No'}")
+                st.write("---")
+        else:
+            st.write("No medication schedule found. Add your medication above.")
 
 # Login Page
 elif page == "Login":
