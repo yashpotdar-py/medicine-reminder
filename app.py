@@ -272,22 +272,10 @@ elif page == "Upload":
         # Optionally, you can still have a checkbox for a delay
         auto_check = st.checkbox("Enable automatic checking (every minute)")
         if auto_check:
-            if 'last_checked' not in st.session_state:
-                st.session_state['last_checked'] = datetime.datetime.now()
+            while True:
+                reminder = check_medicine_time(st.session_state.vectorstore)
+                st.write(reminder)
+                engine.say(reminder)
+                engine.runAndWait()
+                time.sleep(60)
 
-            current_time = datetime.datetime.now()
-            time_difference = (
-                current_time - st.session_state['last_checked']).total_seconds()
-
-            if time_difference >= 60:  # Check every minute
-                with st.spinner("Checking schedule..."):
-                    try:
-                        reminder = check_medicine_time(
-                            st.session_state.vectorstore)
-                        st.write(reminder)
-                        if reminder != "No medicines scheduled for now.":
-                            engine.say(reminder)
-                            engine.runAndWait()
-                        st.session_state['last_checked'] = current_time
-                    except Exception as e:
-                        st.error(f"Error: {str(e)}")
