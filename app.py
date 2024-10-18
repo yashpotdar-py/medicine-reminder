@@ -17,7 +17,7 @@ import pyttsx3
 import time
 
 if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = "AIzaSyDgsUUAeA9sBwKBzz20cAxCyI0dY-g_CPU"
+    os.environ["GOOGLE_API_KEY"] = ""
 
 engine = pyttsx3.init()
 
