@@ -5,3 +5,4 @@ pytesseract
 Pillow
 gTTS
 pyttsx3
+SpeechRecognition
