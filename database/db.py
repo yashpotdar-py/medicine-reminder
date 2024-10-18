@@ -1,58 +1,53 @@
 import sqlite3
-import hashlib
 
-# Initialize the database to include user authentication
-
-
+# Function to initialize the authentication database
 def init_auth_db():
-    conn = sqlite3.connect('medicines.db')
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-
-    # Create a users table if it doesn't exist
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
-    )
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            username TEXT UNIQUE,
+            password TEXT
+        )
     ''')
-
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS extracted_text (
+            id INTEGER PRIMARY KEY,
+            username TEXT,
+            text TEXT,
+            FOREIGN KEY (username) REFERENCES users (username)
+        )
+    ''')
     conn.commit()
     conn.close()
 
-# Hash the password using SHA256
-
-
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-# Add a new user to the database
-
-
+# Function to register a user
 def register_user(username, password):
-    conn = sqlite3.connect('medicines.db')
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-
     try:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)",
-                       (username, hash_password(password)))
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
         conn.commit()
+        return True
     except sqlite3.IntegrityError:
-        return False  # Username already exists
+        return False
     finally:
         conn.close()
-    return True
 
-# Check user credentials for login
-
-
+# Function to log in a user
 def login_user(username, password):
-    conn = sqlite3.connect('medicines.db')
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?",
-                   (username, hash_password(password)))
+    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
     user = cursor.fetchone()
-
     conn.close()
-    return user  # Returns None if no match is found
+    return user
+
+# Function to store extracted text in the database
+def store_extracted_text(username, text):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO extracted_text (username, text) VALUES (?, ?)", (username, text))
+    conn.commit()
+    conn.close()
