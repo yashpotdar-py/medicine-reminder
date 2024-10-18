@@ -1,0 +1,8 @@
+streamlit
+Flask
+APScheduler
+pytesseract
+Pillow
+gTTS
+pyttsx3
+sqlite3
