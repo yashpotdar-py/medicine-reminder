@@ -1,17 +1,17 @@
 import sys
 import os
-
 # Add the parent directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+import schedule
+import threading
 import streamlit as st
 from backend.ocr import extract_text_from_image
 from backend.reminders import text_to_speech_reminder
 from database.db import init_auth_db, register_user, login_user, store_extracted_text, store_medicine_schedule, get_medicine_schedule
-from backend.audio_to_text import convert_audio_to_text  # Assume you have this function defined
-from backend.pdf_to_text import convert_pdf_to_text  # Assume you have this function defined
-from database.db import get_medicine_schedule
-
+from backend.audio_to_text import convert_audio_to_text
+from backend.pdf_to_text import convert_pdf_to_text
+from backend.scheduler import schedule_medicine_reminder, run_scheduler
 
 
 # Initialize the authentication database
@@ -24,7 +24,7 @@ if 'logged_in' not in st.session_state:
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Select a Page:", ["Home", "Login", "Register", "Upload"])
+page = st.sidebar.radio("Select a Page:", ["Home", "Login", "Register", "Upload", "Reminders"])
 
 # Home Page
 if page == "Home":
@@ -45,7 +45,7 @@ if page == "Home":
             submitted = st.form_submit_button("Add Medicine")
 
         if submitted:
-            # Store the medication schedule in the database or session
+            # Store the medication schedule in the database
             if medicine_name:
                 medicine_schedule = {
                     "medicine_name": medicine_name,
@@ -53,15 +53,19 @@ if page == "Home":
                     "afternoon": afternoon_dose,
                     "night": night_dose
                 }
-                # Store the schedule in the database (implement store_medicine_schedule in db module)
+                # Store the schedule in the database
                 store_medicine_schedule(st.session_state['user'], medicine_schedule)
-                st.success(f"Medicine '{medicine_name}' schedule added successfully!")
+
+                # Schedule reminders for the medicine
+                schedule_medicine_reminder(medicine_schedule, st.session_state['user'])
+
+                st.success(f"Medicine '{medicine_name}' schedule added successfully with reminders!")
             else:
                 st.error("Please enter a valid medicine name.")
 
         # Display current medication schedule (if any)
         st.header("Your Medication Schedule")
-        schedule = get_medicine_schedule(st.session_state['user'])  # Assume you have a function to retrieve the schedule
+        schedule = get_medicine_schedule(st.session_state['user'])
 
         if schedule:
             for item in schedule:
@@ -81,7 +85,7 @@ elif page == "Login":
 
     if st.button("Login"):
         user = login_user(login_username, login_password)
-        
+
         if user:
             st.session_state['logged_in'] = True
             st.session_state['user'] = user[1]  # Store the username in the session
@@ -107,10 +111,9 @@ elif page == "Register":
 
 # Upload Page
 elif page == "Upload":
-    # Check if the user is logged in
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access this page.")
-        page = "Login"  # Redirect to Login page if not logged in
+        page = "Login"
     else:
         st.header("Upload Audio or PDF")
         uploaded_file = st.file_uploader("Choose an audio file (WAV, MP3) or PDF file", type=["wav", "mp3", "pdf"])
@@ -121,9 +124,7 @@ elif page == "Upload":
                 text = convert_audio_to_text(uploaded_file)
                 if text:
                     st.success("Audio converted to text successfully!")
-                    st.text_area("Extracted Text", text, height=300)  # Display the extracted text
-                    print(f"Extracted Text from Audio: {text}")  # Print to terminal
-                    # Store extracted text in the database
+                    st.text_area("Extracted Text", text, height=300)
                     if st.button("Store Extracted Text"):
                         store_extracted_text(st.session_state['user'], text)
                         st.success("Text stored successfully!")
@@ -135,11 +136,33 @@ elif page == "Upload":
                 text = convert_pdf_to_text(uploaded_file)
                 if text:
                     st.success("PDF converted to text successfully!")
-                    st.text_area("Extracted Text", text, height=300)  # Display the extracted text
-                    print(f"Extracted Text from PDF: {text}")  # Print to terminal
-                    # Store extracted text in the database
+                    st.text_area("Extracted Text", text, height=300)
                     if st.button("Store Extracted Text"):
                         store_extracted_text(st.session_state['user'], text)
                         st.success("Text stored successfully!")
                 else:
                     st.error("Failed to convert PDF to text.")
+
+# Reminders Page
+elif page == "Reminders":
+    st.header("Your Scheduled Reminders")
+    if st.session_state['logged_in']:
+        try:
+            jobs = schedule.get_jobs()
+            if jobs:
+                for job in jobs:
+                    reminder_message = job.job_func.args[0]  # Assuming first arg is the reminder message
+                    next_run_time = job.next_run.strftime('%H:%M')  # Get next run time
+                    st.write(f"Reminder: {reminder_message} at {next_run_time}")
+            else:
+                st.write("No reminders have been scheduled.")
+        except Exception as e:
+            st.error(f"Error fetching scheduled jobs: {e}")
+    else:
+        st.warning("You need to log in to access this page.")
+
+# Start the reminder scheduler in a separate thread
+if not st.session_state.get('scheduler_running'):
+    st.session_state['scheduler_running'] = True
+    scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
+    scheduler_thread.start()

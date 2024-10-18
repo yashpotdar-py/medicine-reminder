@@ -1,14 +1,26 @@
-from apscheduler.schedulers.background import BackgroundScheduler
+import schedule
 import time
+from backend.reminders import text_to_speech_reminder  # Your text-to-speech reminder function
 
-scheduler = BackgroundScheduler()
+# Sample reminder function for medicine
+def medicine_reminder(medicine_name, username):
+    reminder_message = f"Time to take your medicine: {medicine_name}"
+    print(reminder_message)
+    text_to_speech_reminder(reminder_message)  # Optionally play the reminder using text-to-speech
 
-def schedule_reminder(user_id, reminder_time, medicine_name, dosage):
-    def reminder():
-        print(f"Reminder for user {user_id}: Time to take {dosage} of {medicine_name}!")
+# Schedule a reminder based on user input
+def schedule_medicine_reminder(medicine_schedule, username):
+    if medicine_schedule['morning']:
+        schedule.every().day.at("23:53").do(medicine_reminder, medicine_schedule['medicine_name'], username)
     
-    scheduler.add_job(reminder, 'date', run_date=reminder_time)
-    scheduler.start()
+    if medicine_schedule['afternoon']:
+        schedule.every().day.at("14:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
+    
+    if medicine_schedule['night']:
+        schedule.every().day.at("00:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
 
-def stop_scheduler():
-    scheduler.shutdown()
+# Start the scheduler
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
