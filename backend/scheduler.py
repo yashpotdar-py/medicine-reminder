@@ -11,13 +11,13 @@ def medicine_reminder(medicine_name, username):
 # Schedule a reminder based on user input
 def schedule_medicine_reminder(medicine_schedule, username):
     if medicine_schedule['morning']:
-        schedule.every().day.at("23:53").do(medicine_reminder, medicine_schedule['medicine_name'], username)
+        schedule.every().day.at("08:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
     
     if medicine_schedule['afternoon']:
         schedule.every().day.at("14:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
     
     if medicine_schedule['night']:
-        schedule.every().day.at("00:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
+        schedule.every().day.at("20:00").do(medicine_reminder, medicine_schedule['medicine_name'], username)
 
 # Start the scheduler
 def run_scheduler():
