@@ -5,4 +5,7 @@ pytesseract
 Pillow
 gTTS
 pyttsx3
+<<<<<<< HEAD
 # sqlite3
+=======
+>>>>>>> d6722c1cf5f8df98ba1ac7e94da6729083d27813
