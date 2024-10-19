@@ -178,28 +178,87 @@ st.markdown("""
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Choose a Page:",
-    ["Home", "Login", "Register", "Schedule & Reminders",
+    ["Home", "Register", "Login", "Dashboard", "Schedule & Reminders",
         "Upload", "Voice Recognition"],
     index=0
 )
 
+
 # Home Page with Enhanced Design
 if page == "Home":
+    st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder App! 💊</div>",
+                unsafe_allow_html=True)
+
+    # Project Overview with Simple Paragraph
+    st.subheader("Project Overview")
+    st.write("""
+            The **Medicine Reminder App** helps manage your medication schedules effectively. 
+            It's designed for ease of use, so you never miss a dose. 
+            Track, organize, and stay on top of your health!
+        """)
+
+    # Simplified CSS for custom styling
+    st.markdown("""
+        <style>
+        /* Styling for the features and benefits sections */
+        .section-container {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .section-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            color: #FF5722;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .section-item {
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        </style>
+        """, unsafe_allow_html=True)
+
+    # Main Content for Key Features and Benefits using Streamlit native elements
+    st.subheader("Key Features")
+    st.markdown("""
+            <div class='section-container'>
+                <div class='section-item'>💡 <b>User-Friendly Interface:</b> Easy to navigate.</div>
+                <div class='section-item'>📆 <b>Medication Schedule:</b> Organize your medications by time.</div>
+                <div class='section-item'>🔔 <b>Reminders:</b> Timely notifications to take your meds.</div>
+                <div class='section-item'>📄 <b>Upload Prescriptions:</b> Easily store prescription PDFs.</div>
+                <div class='section-item'>📊 <b>Overview Dashboard:</b> Visualize your progress.</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.subheader("Benefits of Using This App")
+    st.markdown("""
+            <div class='section-container'>
+                <div class='section-item'>🗂 <b>Stay Organized:</b> Keep all your medications in one place.</div>
+                <div class='section-item'>📅 <b>Improve Adherence:</b> Never miss a dose again.</div>
+                <div class='section-item'>📈 <b>Health Insights:</b> Track and analyze your medication habits.</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+elif page == "Dashboard":
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access the Home page.")
         page = "Login"  # Redirect to the Login page
     else:
 
-        st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder App! 💊</div>",
+        st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder Dashboard! 💊</div>",
                     unsafe_allow_html=True)
-
-        # Project Overview with Simple Paragraph
-        st.subheader("Project Overview")
-        st.write("""
-            The **Medicine Reminder App** helps manage your medication schedules effectively. 
-            It's designed for ease of use, so you never miss a dose. 
-            Track, organize, and stay on top of your health!
-        """)
 
         # Simplified CSS for custom styling
         st.markdown("""
@@ -232,27 +291,6 @@ if page == "Home":
         }
 
         </style>
-        """, unsafe_allow_html=True)
-
-        # Main Content for Key Features and Benefits using Streamlit native elements
-        st.subheader("Key Features")
-        st.markdown("""
-            <div class='section-container'>
-                <div class='section-item'>💡 <b>User-Friendly Interface:</b> Easy to navigate.</div>
-                <div class='section-item'>📆 <b>Medication Schedule:</b> Organize your medications by time.</div>
-                <div class='section-item'>🔔 <b>Reminders:</b> Timely notifications to take your meds.</div>
-                <div class='section-item'>📄 <b>Upload Prescriptions:</b> Easily store prescription PDFs.</div>
-                <div class='section-item'>📊 <b>Overview Dashboard:</b> Visualize your progress.</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.subheader("Benefits of Using This App")
-        st.markdown("""
-            <div class='section-container'>
-                <div class='section-item'>🗂 <b>Stay Organized:</b> Keep all your medications in one place.</div>
-                <div class='section-item'>📅 <b>Improve Adherence:</b> Never miss a dose again.</div>
-                <div class='section-item'>📈 <b>Health Insights:</b> Track and analyze your medication habits.</div>
-            </div>
         """, unsafe_allow_html=True)
 
         # Quick Overview Metrics
@@ -363,7 +401,6 @@ elif page == "Schedule & Reminders":
         st.header("Manage Medication Schedule and Reminders")
         # (rest of the Schedule & Reminders page code...)
 
-
         # Add Medication Schedule
         st.subheader("Add Medication Schedule")
         with st.form("medicine_form"):  # Unique form
@@ -397,7 +434,8 @@ elif page == "Schedule & Reminders":
             for item in schedule:
                 with st.expander(f"Medicine: {item['medicine_name']}", expanded=False):
                     st.write(f"Morning: {'Yes' if item['morning'] else 'No'}")
-                    st.write(f"Afternoon: {'Yes' if item['afternoon'] else 'No'}")
+                    st.write(
+                        f"Afternoon: {'Yes' if item['afternoon'] else 'No'}")
                     st.write(f"Night: {'Yes' if item['night'] else 'No'}")
 
                     # Edit medicine schedule in a unique form
@@ -466,7 +504,8 @@ elif page == "Schedule & Reminders":
                     with st.form(f"edit_reminder_form_{reminder[0]}"):
                         edit_reminder_time = st.time_input(
                             "Edit Reminder Time", value=reminder_time)
-                        update_reminder_submitted = st.form_submit_button("Update")
+                        update_reminder_submitted = st.form_submit_button(
+                            "Update")
 
                     if update_reminder_submitted:
                         update_reminder(
@@ -476,7 +515,8 @@ elif page == "Schedule & Reminders":
 
                     # Separate form for deletion
                     with st.form(f"delete_reminder_form_{reminder[0]}"):
-                        delete_reminder_submitted = st.form_submit_button("Delete")
+                        delete_reminder_submitted = st.form_submit_button(
+                            "Delete")
 
                     if delete_reminder_submitted:
                         delete_reminder(st.session_state['user'], reminder[2])
@@ -516,7 +556,7 @@ elif page == "Upload":
         # Check Medicine Schedule button
         if st.session_state.vectorstore:
             st.subheader("Current Time: " +
-                        datetime.datetime.now().strftime("%I:%M %p"))
+                         datetime.datetime.now().strftime("%I:%M %p"))
 
             # Button to check schedule
             if st.button("Check Medicine Schedule"):
@@ -533,10 +573,12 @@ elif page == "Upload":
                         st.error(f"Error: {str(e)}")
 
             # Optionally, you can still have a checkbox for a delay
-            auto_check = st.checkbox("Enable automatic checking (every minute)")
+            auto_check = st.checkbox(
+                "Enable automatic checking (every minute)")
             if auto_check:
                 while True:
-                    reminder = check_medicine_time(st.session_state.vectorstore)
+                    reminder = check_medicine_time(
+                        st.session_state.vectorstore)
                     st.write(reminder)
                     if not engine.isBusy():  # Ensure engine is free before speaking
                         engine.say(reminder)
@@ -576,7 +618,8 @@ elif page == "Voice Recognition":
                         st.write(
                             "You mentioned a medicine. Would you like to search or set a reminder?")
                         if st.button("Set Reminder for Mentioned Medicine"):
-                            st.write(f"Setting a reminder for {text}... (Demo)")
+                            st.write(
+                                f"Setting a reminder for {text}... (Demo)")
 
                 except sr.UnknownValueError:
                     st.error(
