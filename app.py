@@ -288,7 +288,7 @@ elif page == "Schedule & Reminders":
 
     if reminders:
         for reminder in reminders:
-            reminder_time = datetime.strptime(reminder[3], "%H:%M").time()
+            reminder_time = datetime.datetime.strptime(reminder[3], "%H:%M").time()
 
             # Unique form for editing reminders
             with st.expander(f"Reminder: {reminder[2]} at {reminder[3]}", expanded=False):
@@ -330,8 +330,7 @@ elif page == "Upload":
         for page in pdf_reader.pages:
             text += page.extract_text()
 
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         texts = text_splitter.split_text(text)
 
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -341,19 +340,18 @@ elif page == "Upload":
 
     # Check Medicine Schedule button
     if st.session_state.vectorstore:
-        st.subheader("Current Time: " +
-                     datetime.datetime.now().strftime("%I:%M %p"))
+        st.subheader("Current Time: " + datetime.datetime.now().strftime("%I:%M %p"))
 
         # Button to check schedule
         if st.button("Check Medicine Schedule"):
             with st.spinner("Checking schedule..."):
                 try:
-                    reminder = check_medicine_time(
-                        st.session_state.vectorstore)
+                    reminder = check_medicine_time(st.session_state.vectorstore)
                     st.write(reminder)
                     if reminder != "No medicines scheduled for now.":
-                        engine.say(reminder)
-                        engine.runAndWait()
+                        if not engine.isBusy():  # Check if engine is not already speaking
+                            engine.say(reminder)
+                            engine.runAndWait()  # Only run if engine is free
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
 
@@ -363,7 +361,7 @@ elif page == "Upload":
             while True:
                 reminder = check_medicine_time(st.session_state.vectorstore)
                 st.write(reminder)
-                engine.say(reminder)
-                engine.runAndWait()
-                time.sleep(60)
-
+                if not engine.isBusy():  # Ensure engine is free before speaking
+                    engine.say(reminder)
+                    engine.runAndWait()
+                time.sleep(60)  # Sleep for 60 seconds before next check
