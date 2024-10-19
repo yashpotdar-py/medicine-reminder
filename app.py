@@ -177,10 +177,23 @@ st.markdown("""
 
 
 with st.sidebar:
-    page = option_menu("Main Menu", ["Home", "Register", "Login", "Dashboard", "Schedule & Reminders",
-                                     "Upload", "Voice Recognition"],
-                       icons=['house', 'gear'], menu_icon="cast", default_index=1)
-    page
+    page = option_menu(
+        "Main Menu",
+        ["Home", "Register", "Login", "Dashboard",
+            "Schedule & Reminders", "Upload", "Voice Recognition"],
+        icons=['house', 'person-plus', 'box-arrow-in-right', 'speedometer2', 'calendar-check', 'cloud-upload', 'mic'],
+        menu_icon="capsule",
+        default_index=1,
+        styles={
+            # Dark background
+            "container": {"padding": "10!important", "background-color": "#262730", "min-height": "150vh"},
+            "icon": {"color": "#FFFFFF", "font-size": "18px"},  # Icon color
+            "nav-link": {"font-size": "16px", "color": "#FFFFFF", "text-align": "left", "margin": "0px",
+                         "--hover-color": "#262730"},  # Link text color and hover effect
+            # Selected item background
+            "nav-link-selected": {"background-color": "#1f6feb"}
+        }
+    )
 
 # Home Page with Enhanced Design
 if page == "Home":
@@ -338,7 +351,7 @@ elif page == "Dashboard":
                 "No medication schedule available yet. Add some medications to see insights.")
 
         # Interactive Buttons with Animations
-        st.write("**Explore the features below:**")
+        st.write("**Explore the features below: (Experminatal)**")
         col1, col2, col3 = st.columns(3)
 
         with col1:
@@ -529,7 +542,7 @@ elif page == "Upload":
         st.warning("You need to log in to access this page.")
         page = "Login"  # Redirect to Login page if not logged in
     else:
-        st.header("Medicine Reminder 💊")
+        st.header("Upload Prescription (Experimental)")
 
         if 'vectorstore' not in st.session_state:
             st.session_state.vectorstore = None
@@ -589,7 +602,7 @@ elif page == "Voice Recognition":
         st.warning("You need to log in to access this page.")
         page = "Login"  # Redirect to the Login page
     else:
-        st.header("Voice Recognition Feature")
+        st.header("Voice Recognition (Experimental)")
 
         # Button to start recording
         if st.button("Start Recording"):
