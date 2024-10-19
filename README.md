@@ -78,11 +78,7 @@ streamlit run app.py
 
 ## Project Demo
 
-<video controls>
-  <source src="project-demo.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video>
-
+[Watch the project demo](project-demo.webm)
 ---
 
 ## Future Scopes and Experimental Features
