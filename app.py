@@ -1,29 +1,31 @@
-from streamlit_option_menu import option_menu
-import sys
-import pandas as pd
-import plotly.express as px
 import os
-import streamlit as st
-from datetime import datetime
-from db import init_auth_db, register_user, login_user, store_medicine_schedule, get_medicine_schedule, store_reminder, get_reminders, delete_medicine_schedule, delete_reminder, update_medicine_schedule, update_reminder
-
-from PyPDF2 import PdfReader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_google_genai import ChatGoogleGenerativeAI
-import datetime
-import pyttsx3
 import time
+import pyttsx3
+import datetime
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 import speech_recognition as sr
+from streamlit_option_menu import option_menu
+from langchain_community.vectorstores import FAISS
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from db import (init_auth_db, register_user, login_user, store_medicine_schedule,
+                get_medicine_schedule, store_reminder, get_reminders, delete_medicine_schedule,
+                delete_reminder, update_medicine_schedule, update_reminder)
+
 load_dotenv()
+
 if "GOOGLE_API_KEY" not in os.environ:
     os.environ["GOOGLE_API_KEY"] = os.environ("GOOGLE_API_KEY")
 
+# Initializes the pyttsx3 text-to-speech engine, which can be used to generate audio output from text.
 engine = pyttsx3.init()
 
 # Initialize the recognizer
@@ -35,6 +37,26 @@ def format_docs(docs):
 
 
 def check_medicine_time(vectorstore):
+    """
+    Checks if any medicine needs to be taken at the current time and creates a reminder message if necessary.
+    
+    This function uses a LangChain pipeline to process the medicine schedule information and generate appropriate reminders.
+    The pipeline consists of the following components:
+    1. A retriever that fetches relevant medicine schedule information from the vector store.
+    2. A prompt template that structures the query for the language model.
+    3. A ChatGoogleGenerativeAI language model (Gemini 1.5 Pro) for generating the response.
+    4. A string output parser to format the final result.
+    
+    Args:
+        vectorstore (FAISS): The vector store containing the medicine schedule information.
+    
+    Returns:
+        str: A reminder message if medicine needs to be taken, or "No medicines scheduled for now" if no medicines are scheduled.
+    
+    Note:
+        The function uses the current time to check for scheduled medicines and relies on the vector store's
+        ability to retrieve relevant information based on the time context.
+    """
     current_time = datetime.datetime.now().strftime("%I:%M %p")
 
     llm = ChatGoogleGenerativeAI(
@@ -62,6 +84,7 @@ def check_medicine_time(vectorstore):
     return chain.invoke(current_time)
 
 
+# TODO: Implement the following functions in the future
 def get_missed_reminders(user):
     st.write("Getting missed reminders...")
 
@@ -184,6 +207,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+"""
+Displays a sidebar menu with various options for the application.
+
+The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides a navigation menu with the following options:
+
+- Home
+- Register
+- Login
+- Dashboard
+- Schedule & Reminders
+- Upload
+- Voice Recognition
+
+The menu is styled with a dark background, white text, and a hover effect. The selected option is highlighted with a blue background.
+
+The `default_index` parameter sets the Home option as the default selected option.
+"""
 with st.sidebar:
     page = option_menu(
         "Main Menu",
@@ -204,7 +244,40 @@ with st.sidebar:
         }
     )
 
-# Home Page with Enhanced Design
+
+
+"""
+Displays a sidebar menu with various options for the application.
+
+The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides an intuitive and visually appealing navigation menu with the following options:
+
+1. Home: The landing page of the application.
+2. Register: Allows new users to create an account.
+3. Login: Existing users can access their accounts.
+4. Dashboard: Provides an overview of the user's medication schedule and health information.
+5. Schedule & Reminders: Enables users to manage their medication schedules and set reminders.
+6. Upload: Allows users to upload relevant medical documents or prescription images.
+7. Voice Recognition: Implements voice commands for hands-free navigation and data input.
+
+Key Features of the Sidebar Menu:
+- Responsive Design: Adapts to different screen sizes for optimal user experience.
+- Intuitive Icons: Each menu option is accompanied by a relevant icon for quick visual recognition.
+- Stylish Appearance: The menu is styled with a sleek dark background (#262730) and white text for high contrast and readability.
+- Interactive Elements: Hover effects provide visual feedback to users, enhancing the interactive experience.
+- Highlighted Selection: The currently selected option is prominently displayed with a blue background (#1f6feb) for easy navigation tracking.
+
+Customization and Styling:
+- The menu is fully customizable using the `styles` parameter in the `option_menu` function.
+- Font sizes are optimized for readability (18px for icons, 16px for text).
+- The container has a minimum height of 150vh to ensure full sidebar coverage on most screen sizes.
+
+Default Selection:
+The `default_index` parameter is set to 0, which means the "Home" option is initially selected when the application loads, providing a logical starting point for users.
+
+This sidebar menu enhances the overall user experience by providing easy access to all major features of the Medicine Reminder App, ensuring intuitive navigation and a professional appearance.
+"""
+
+# Home Page
 if page == "Home":
     st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder App! 💊</div>",
                 unsafe_allow_html=True)
@@ -270,7 +343,7 @@ if page == "Home":
                 <div class='section-item'>📈 <b>Health Insights:</b> Track and analyze your medication habits.</div>
             </div>
         """, unsafe_allow_html=True)
-
+# Dashboard
 elif page == "Dashboard":
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access the Home page.")
@@ -420,9 +493,7 @@ elif page == "Dashboard":
             st.subheader("Emergency Contact Information")
             # Placeholder text
             st.write("This feature is yet to be implemented.")
-
-
-# Login Page
+# Login
 elif page == "Login":
     st.header("User Login")
     login_username = st.text_input("Username", key="login_username")
@@ -439,8 +510,7 @@ elif page == "Login":
             page = "Home"
         else:
             st.error("Invalid username or password")
-
-# Registration Page
+# Register
 elif page == "Register":
     st.header("User Registration")
     username = st.text_input("Enter a username")
@@ -454,7 +524,7 @@ elif page == "Register":
             st.success(f"User {username} registered successfully!")
         else:
             st.error("Username already exists!")
-
+# Schedule & Reminders
 elif page == "Schedule & Reminders":
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access this page.")
@@ -585,7 +655,7 @@ elif page == "Schedule & Reminders":
                             f"Reminder for '{reminder[2]}' deleted successfully!")
         else:
             st.write("No reminders set. Add reminders above.")
-
+# Upload Prescription (Experimental)
 elif page == "Upload":
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access this page.")
@@ -644,8 +714,7 @@ elif page == "Upload":
                         engine.say(reminder)
                         engine.runAndWait()
                     time.sleep(60)  # Sleep for 60 seconds before next check
-
-
+# Voice Recognition (Experimental)
 elif page == "Voice Recognition":
     if not st.session_state['logged_in']:
         st.warning("You need to log in to access this page.")
