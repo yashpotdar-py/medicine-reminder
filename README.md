@@ -35,14 +35,33 @@ Medicine Reminder is a comprehensive application designed to help users manage t
 ## Setup and Installation
 
 1. Clone the repository
-2. Install the required dependencies:
+2. Go to the working directory
+  ```bash
+   cd medicine-reminder
+   ```
+3. Create and activate a Python Virtual Environment
+   ```bash
+   python -m venv .venv
+   ```
+   For Windows:
+   ```bash
+   .venv\Scripts\activate
+   ```
+   For Linux:
+   ```bash
+   source .venv\bin\activate
+   ```
+4. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up your environment variables:
-4. Create a .env file in the project root
-5. Add your Google API key: GOOGLE_API_KEY=your_api_key_here
+5. Set up your environment variables:
+6. Create a .env file in the project root
+7. Add your Google API key in te `.env` file:
+   ```python
+   GOOGLE_API_KEY=<your_api_key_here>
+   ```
 
 ---
 
