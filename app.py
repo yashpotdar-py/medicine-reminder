@@ -1,3 +1,4 @@
+from streamlit_option_menu import option_menu
 import sys
 import pandas as pd
 import plotly.express as px
@@ -174,15 +175,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Choose a Page:",
-    ["Home", "Register", "Login", "Dashboard", "Schedule & Reminders",
-        "Upload", "Voice Recognition"],
-    index=0
-)
 
+with st.sidebar:
+    page = option_menu("Main Menu", ["Home", "Register", "Login", "Dashboard", "Schedule & Reminders",
+                                     "Upload", "Voice Recognition"],
+                       icons=['house', 'gear'], menu_icon="cast", default_index=1)
+    page
 
 # Home Page with Enhanced Design
 if page == "Home":
