@@ -79,8 +79,8 @@ streamlit run app.py
 ## Project Demo
 
 [Watch the project demo](project-demo.webm)
-[!(Project Demo)]([!(Project Demo)](https://github.com/yashpotdar-py/medicine-reminder/raw/refs/heads/main/project-demo.mp4))
 
+<video controls src="https://github.com/yashpotdar-py/medicine-reminder/raw/refs/heads/main/project-demo.mp4" title="Project Demo"></video>
 ---
 
 ## Future Scopes and Experimental Features
