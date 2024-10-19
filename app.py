@@ -17,11 +17,16 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 import datetime
 import pyttsx3
 import time
-
+from dotenv import load_dotenv
+import speech_recognition as sr
+load_dotenv()
 if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = "AIzaSyATeU4x79yTwT0UWLp5Ov30Oq-szRit0Gs"
+    os.environ["GOOGLE_API_KEY"] = os.environ("GOOGLE_API_KEY")
 
 engine = pyttsx3.init()
+
+# Initialize the recognizer
+r = sr.Recognizer()
 
 
 def format_docs(docs):
@@ -67,7 +72,7 @@ if 'logged_in' not in st.session_state:
 # Sidebar for navigation
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
-    "Select a Page:", ["Home", "Login", "Register", "Schedule & Reminders", 'Upload'])
+    "Select a Page:", ["Home", "Login", "Register", "Schedule & Reminders", 'Upload', 'Voice Recognition'])
 
 # Home Page
 if page == "Home":
@@ -365,3 +370,38 @@ elif page == "Upload":
                     engine.say(reminder)
                     engine.runAndWait()
                 time.sleep(60)  # Sleep for 60 seconds before next check
+
+
+# Voice Recognition Page
+elif page == "Voice Recognition":
+    st.header("Voice Recognition Feature")
+
+    # Button to start recording
+    if st.button("Start Recording"):
+        with sr.Microphone() as source:
+            st.write("Adjusting for ambient noise...")
+            r.adjust_for_ambient_noise(source)
+            st.write("Say something!")
+            audio = r.listen(source, timeout=3)  # Record the audio
+
+            try:
+                # Recognize speech using Google's Speech-to-Text
+                st.write("Recognizing speech...")
+                text = r.recognize_google(audio)
+                st.write(f"You said: {text}")
+
+                # Save the recognized text to a text file
+                with open("recognized_speech.txt", "w") as file:
+                    file.write(text)
+                st.success("Recognized text has been saved to 'recognized_speech.txt'.")
+
+                # Use recognized text for setting reminders or searching medications
+                if 'medicine' in text.lower():
+                    st.write("You mentioned a medicine. Would you like to search or set a reminder?")
+                    if st.button("Set Reminder for Mentioned Medicine"):
+                        st.write(f"Setting a reminder for {text}... (Demo)")
+
+            except sr.UnknownValueError:
+                st.error("Google Speech Recognition could not understand the audio.")
+            except sr.RequestError as e:
+                st.error(f"Could not request results from Google Speech Recognition; {e}")
