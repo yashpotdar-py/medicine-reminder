@@ -17,7 +17,7 @@ import pyttsx3
 import time
 
 if "GOOGLE_API_KEY" not in os.environ:
-    os.environ["GOOGLE_API_KEY"] = ""
+    os.environ["GOOGLE_API_KEY"] = "AIzaSyATeU4x79yTwT0UWLp5Ov30Oq-szRit0Gs"
 
 engine = pyttsx3.init()
 
@@ -69,13 +69,110 @@ page = st.sidebar.radio(
 
 # Home Page
 if page == "Home":
-    if not st.session_state['logged_in']:
-        st.warning("You need to log in to access the home page.")
-        page = "Login"  # Redirect to Login page if not logged in
+    st.title("Welcome to Your Medicine Reminder App! 💊")
 
-    if st.session_state['logged_in']:
-        st.title("Welcome to Medicine Reminder App!")
-        st.write("This is your home page. Please use the features provided.")
+    # Project Overview
+    st.subheader("Project Overview")
+    st.write("""
+        The **Medicine Reminder App** is designed to help individuals manage their medication schedules effectively. 
+        It provides a simple and intuitive interface to keep track of medications, set reminders, and ensure that 
+        users never miss a dose.
+    """)
+
+    # Key Features Section
+    st.subheader("Key Features")
+    st.markdown("""
+        - **User-Friendly Interface**: Easy navigation and a straightforward design to make medication management hassle-free.
+        - **Medication Schedule**: Add, edit, and delete your medication schedules effortlessly.
+        - **Reminders**: Set reminders for each medication to ensure timely intake.
+        - **Prescription Upload**: Upload prescription PDFs for easy reference.
+        - **Overview Dashboard**: Get insights into your medication habits and see your scheduled medicines visually represented.
+    """)
+
+    # Benefits Section
+    st.subheader("Benefits of Using This App")
+    st.markdown("""
+        - **Stay Organized**: Keep all your medication schedules in one place.
+        - **Improve Compliance**: Reduce the risk of missing doses by setting reminders.
+        - **User Engagement**: The app provides an interactive experience that encourages regular use.
+        - **Health Monitoring**: By tracking your medication intake, you can better manage your health conditions.
+    """)
+
+    # Add summary metrics (example values for demo purposes)
+    st.subheader("Quick Overview")
+    num_medicines = 0  # Placeholder for number of medicines
+    num_reminders = 0   # Placeholder for number of reminders
+
+    # Display some key metrics
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Medicines", num_medicines, "medications added")
+    with col2:
+        st.metric("Active Reminders", num_reminders, "reminders set")
+
+    # Add graphs (Example: Time of Day Medicine Schedule)
+    st.subheader("Medication Schedule Overview")
+
+    # For demo purposes, let's assume there's some sample schedule data
+    sample_schedule_data = [
+        {'medicine_name': 'Aspirin', 'morning': True, 'afternoon': False, 'night': True},
+        {'medicine_name': 'Ibuprofen', 'morning': False, 'afternoon': True, 'night': False},
+        {'medicine_name': 'Vitamin C', 'morning': True, 'afternoon': False, 'night': False},
+    ]
+
+    if sample_schedule_data:
+        # Prepare data for graphing
+        data = {
+            'Medicine': [],
+            'Time': []
+        }
+
+        for item in sample_schedule_data:
+            if item['morning']:
+                data['Medicine'].append(item['medicine_name'])
+                data['Time'].append('Morning')
+            if item['afternoon']:
+                data['Medicine'].append(item['medicine_name'])
+                data['Time'].append('Afternoon')
+            if item['night']:
+                data['Medicine'].append(item['medicine_name'])
+                data['Time'].append('Night')
+
+        df = pd.DataFrame(data)
+
+        # Plot graph using Plotly
+        fig = px.histogram(df, x="Time", color="Medicine", barmode="group",
+                           title="Scheduled Medicines Throughout the Day",
+                           labels={"Time": "Time of Day", "Medicine": "Medicine Name"},
+                           category_orders={"Time": ["Morning", "Afternoon", "Night"]})
+        st.plotly_chart(fig)
+
+    else:
+        st.info("No medication schedule available yet. Add some medications to see insights.")
+
+    # Interactive buttons to explore scheduling features
+    st.write("**Explore the features below:**")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Add a New Medicine 💊"):
+            st.write("Feature coming soon! (Simulating adding medicine...)")
+
+    with col2:
+        if st.button("Set New Reminder ⏰"):
+            st.write("Feature coming soon! (Simulating setting a reminder...)")
+
+    with col3:
+        if st.button("Upload Prescription PDF 📄"):
+            st.write("Feature coming soon! (Simulating PDF upload...)")
+
+    # Add an interactive slider for demo (e.g., tracking dosage frequency)
+    st.subheader("Set Custom Dosage Frequency")
+    dosage_frequency = st.slider(
+        "How frequently do you take your medications? (Times per day)", min_value=1, max_value=5, value=3)
+    st.write(f"You have set your dosage frequency to: {dosage_frequency} times per day.")
+
+    st.write("Explore the app and take charge of your health!")
 
 # Login Page
 elif page == "Login":
