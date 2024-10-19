@@ -19,7 +19,7 @@ def init_auth_db():
             morning BOOLEAN,
             afternoon BOOLEAN,
             night BOOLEAN,
-            dosage TEXT,  -- New dosage column
+            dosage INTEGER,  -- New dosage column
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
@@ -29,7 +29,7 @@ def init_auth_db():
             user_id INTEGER,
             medicine_name TEXT,
             reminder_time TEXT,
-            dosage TEXT,  -- New dosage column
+            dosage INTEGER,  -- New dosage column
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')

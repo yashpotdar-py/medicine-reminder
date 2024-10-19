@@ -335,7 +335,7 @@ elif page == "Dashboard":
                     data['Dosage'].append(item['dosage'])
 
             df = pd.DataFrame(data)
-            fig = px.histogram(df, x="Time", color="Medicine", barmode="group",
+            fig = px.histogram(df, x="Time", color="Medicine", barmode="group", y="Dosage",
                                title="Scheduled Medicines Throughout the Day",
                                labels={"Time": "Time of Day",
                                        "Medicine": "Medicine Name",
@@ -413,7 +413,7 @@ elif page == "Schedule & Reminders":
             morning_dose = st.checkbox("Morning")
             afternoon_dose = st.checkbox("Afternoon")
             night_dose = st.checkbox("Night")
-            dosage = st.text_input("Enter dosage (e.g., 500 mg, 1 tablet)")  # New dosage input
+            dosage = st.text_input("Enter dosage (e.g. 1 tablet)")  # New dosage input
             submitted = st.form_submit_button("Add Medicine")  # Submit button inside form
         if submitted:
             if medicine_name and dosage:  # Ensure dosage is also provided
@@ -466,7 +466,7 @@ elif page == "Schedule & Reminders":
         with st.form("reminder_form"):  # Unique form for reminder
             reminder_medicine_name = st.selectbox("Select medicine", [item['medicine_name'] for item in schedule])
             reminder_time = st.time_input("Reminder Time", datetime.datetime.now().time())
-            dosage = next(item['dosage'] for item in schedule if item['medicine_name'] == reminder_medicine_name)
+            dosage = next(item[str('dosage')] for item in schedule if item['medicine_name'] == reminder_medicine_name)
             reminder_submitted = st.form_submit_button("Set Reminder")  # Submit inside form
         if reminder_submitted:
             store_reminder(st.session_state['user'], reminder_medicine_name, reminder_time.strftime("%H:%M"), dosage)
