@@ -19,6 +19,7 @@ def init_auth_db():
             morning BOOLEAN,
             afternoon BOOLEAN,
             night BOOLEAN,
+            dosage TEXT,  -- New dosage column
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
@@ -28,6 +29,7 @@ def init_auth_db():
             user_id INTEGER,
             medicine_name TEXT,
             reminder_time TEXT,
+            dosage TEXT,  -- New dosage column
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
@@ -62,11 +64,10 @@ def login_user(username, password):
 def store_medicine_schedule(user, medicine_schedule):
     conn = sqlite3.connect('auth.db')
     c = conn.cursor()
-    c.execute('INSERT INTO medicine_schedule (user_id, medicine_name, morning, afternoon, night) VALUES (?, ?, ?, ?, ?)',
-              (user[0], medicine_schedule['medicine_name'], medicine_schedule['morning'], medicine_schedule['afternoon'], medicine_schedule['night']))
+    c.execute('INSERT INTO medicine_schedule (user_id, medicine_name, morning, afternoon, night, dosage) VALUES (?, ?, ?, ?, ?, ?)',
+              (user[0], medicine_schedule['medicine_name'], medicine_schedule['morning'], medicine_schedule['afternoon'], medicine_schedule['night'], medicine_schedule['dosage']))
     conn.commit()
     conn.close()
-
 
 def get_medicine_schedule(user):
     conn = sqlite3.connect('auth.db')
@@ -74,14 +75,15 @@ def get_medicine_schedule(user):
     c.execute('SELECT * FROM medicine_schedule WHERE user_id = ?', (user[0],))
     schedules = c.fetchall()
     conn.close()
-    return [{'medicine_name': item[2], 'morning': item[3], 'afternoon': item[4], 'night': item[5]} for item in schedules]
+    return [{'medicine_name': item[2], 'morning': item[3], 'afternoon': item[4], 'night': item[5], 'dosage': item[6]} for item in schedules]
 
 
-def store_reminder(user, medicine_name, reminder_time):
+
+def store_reminder(user, medicine_name, reminder_time, dosage):
     conn = sqlite3.connect('auth.db')
     c = conn.cursor()
-    c.execute('INSERT INTO reminders (user_id, medicine_name, reminder_time) VALUES (?, ?, ?)',
-              (user[0], medicine_name, reminder_time))
+    c.execute('INSERT INTO reminders (user_id, medicine_name, reminder_time, dosage) VALUES (?, ?, ?, ?)',
+              (user[0], medicine_name, reminder_time, dosage))
     conn.commit()
     conn.close()
 
@@ -116,8 +118,8 @@ def delete_reminder(user, medicine_name):
 def update_medicine_schedule(user, old_name, new_schedule):
     conn = sqlite3.connect('auth.db')
     c = conn.cursor()
-    c.execute('UPDATE medicine_schedule SET medicine_name = ?, morning = ?, afternoon = ?, night = ? WHERE user_id = ? AND medicine_name = ?',
-              (new_schedule['medicine_name'], new_schedule['morning'], new_schedule['afternoon'], new_schedule['night'], user[0], old_name))
+    c.execute('UPDATE medicine_schedule SET medicine_name = ?, morning = ?, afternoon = ?, night = ?, dosage = ? WHERE user_id = ? AND medicine_name = ?',
+              (new_schedule['medicine_name'], new_schedule['morning'], new_schedule['afternoon'], new_schedule['night'], new_schedule['dosage'], user[0], old_name))
     conn.commit()
     conn.close()
 

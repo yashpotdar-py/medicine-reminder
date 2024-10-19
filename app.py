@@ -183,7 +183,7 @@ with st.sidebar:
             "Schedule & Reminders", "Upload", "Voice Recognition"],
         icons=['house', 'person-plus', 'box-arrow-in-right', 'speedometer2', 'calendar-check', 'cloud-upload', 'mic'],
         menu_icon="capsule",
-        default_index=1,
+        default_index=0,
         styles={
             # Dark background
             "container": {"padding": "10!important", "background-color": "#262730", "min-height": "150vh"},
@@ -267,10 +267,9 @@ elif page == "Dashboard":
         st.warning("You need to log in to access the Home page.")
         page = "Login"  # Redirect to the Login page
     else:
-
         st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder Dashboard! 💊</div>",
                     unsafe_allow_html=True)
-
+        st.subheader("Quick Overview")
         # Simplified CSS for custom styling
         st.markdown("""
         <style>
@@ -303,52 +302,50 @@ elif page == "Dashboard":
 
         </style>
         """, unsafe_allow_html=True)
-
-        # Quick Overview Metrics
-        st.subheader("Quick Overview")
         col1, col2 = st.columns(2)
-
         with col1:
-            st.markdown("<div class='metric-container'>",
-                        unsafe_allow_html=True)
-            st.metric("Total Medicines", "5 medications")
+            st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
+            st.metric("Total Medicines", "5 medications")  # Update this dynamically if needed
             st.markdown("</div>", unsafe_allow_html=True)
-
         with col2:
-            st.markdown("<div class='metric-container'>",
-                        unsafe_allow_html=True)
-            st.metric("Active Reminders", "3 reminders")
+            st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
+            st.metric("Active Reminders", "3 reminders")  # Update this dynamically if needed
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # Medication Schedule Graph (with Dark Theme)
         st.subheader("Medication Schedule Overview")
-        # Fetch medicine schedule from the database for the logged-in user
         schedule = get_medicine_schedule(st.session_state['user'])
         if schedule:
             data = {
                 'Medicine': [],
-                'Time': []
+                'Time': [],
+                'Dosage': []  # Include dosage in data
             }
             for item in schedule:
                 if item['morning']:
                     data['Medicine'].append(item['medicine_name'])
                     data['Time'].append('Morning')
+                    data['Dosage'].append(item['dosage'])
                 if item['afternoon']:
                     data['Medicine'].append(item['medicine_name'])
                     data['Time'].append('Afternoon')
+                    data['Dosage'].append(item['dosage'])
                 if item['night']:
                     data['Medicine'].append(item['medicine_name'])
                     data['Time'].append('Night')
+                    data['Dosage'].append(item['dosage'])
+
             df = pd.DataFrame(data)
             fig = px.histogram(df, x="Time", color="Medicine", barmode="group",
                                title="Scheduled Medicines Throughout the Day",
                                labels={"Time": "Time of Day",
-                                       "Medicine": "Medicine Name"},
+                                       "Medicine": "Medicine Name",
+                                       "Dosage": "Dosage"},  # Updated label
                                category_orders={"Time": ["Morning", "Afternoon", "Night"]})
             st.plotly_chart(fig)
         else:
-            st.info(
-                "No medication schedule available yet. Add some medications to see insights.")
+            st.info("No medication schedule available yet. Add some medications to see insights.")
+        st.write("**Explore your reminders, and medication schedule, and stay on top of your health!**")
+        st.info("No medication schedule available yet. Add some medications to see insights.")
 
         # Interactive Buttons with Animations
         st.write("**Explore the features below: (Experminatal)**")
@@ -410,129 +407,99 @@ elif page == "Schedule & Reminders":
         page = "Login"  # Redirect to the Login page
     else:
         st.header("Manage Medication Schedule and Reminders")
-        # (rest of the Schedule & Reminders page code...)
-
-        # Add Medication Schedule
         st.subheader("Add Medication Schedule")
         with st.form("medicine_form"):  # Unique form
             medicine_name = st.text_input("Enter the medicine name")
             morning_dose = st.checkbox("Morning")
             afternoon_dose = st.checkbox("Afternoon")
             night_dose = st.checkbox("Night")
-            submitted = st.form_submit_button(
-                "Add Medicine")  # Submit button inside form
-
+            dosage = st.text_input("Enter dosage (e.g., 500 mg, 1 tablet)")  # New dosage input
+            submitted = st.form_submit_button("Add Medicine")  # Submit button inside form
         if submitted:
-            if medicine_name:
+            if medicine_name and dosage:  # Ensure dosage is also provided
                 medicine_schedule = {
                     "medicine_name": medicine_name,
                     "morning": morning_dose,
                     "afternoon": afternoon_dose,
-                    "night": night_dose
+                    "night": night_dose,
+                    "dosage": dosage  # Include dosage in the schedule
                 }
-                store_medicine_schedule(
-                    st.session_state['user'], medicine_schedule)
-                st.success(
-                    f"Medicine '{medicine_name}' schedule added successfully!")
+                store_medicine_schedule(st.session_state['user'], medicine_schedule)
+                st.success(f"Medicine '{medicine_name}' schedule added successfully!")
             else:
-                st.error("Please enter a valid medicine name.")
+                st.error("Please enter a valid medicine name and dosage.")
 
-        # Display current medication schedule
         st.subheader("Your Medication Schedule")
         schedule = get_medicine_schedule(st.session_state['user'])
-
         if schedule:
             for item in schedule:
                 with st.expander(f"Medicine: {item['medicine_name']}", expanded=False):
                     st.write(f"Morning: {'Yes' if item['morning'] else 'No'}")
-                    st.write(
-                        f"Afternoon: {'Yes' if item['afternoon'] else 'No'}")
+                    st.write(f"Afternoon: {'Yes' if item['afternoon'] else 'No'}")
                     st.write(f"Night: {'Yes' if item['night'] else 'No'}")
-
-                    # Edit medicine schedule in a unique form
+                    st.write(f"Dosage: {item['dosage']}")  # Show dosage
                     # Separate form for editing
                     with st.form(f"edit_form_{item['medicine_name']}"):
-                        edit_medicine_name = st.text_input(
-                            "Edit Medicine Name", value=item['medicine_name'])
-                        edit_morning_dose = st.checkbox(
-                            "Edit Morning Dose", value=item['morning'])
-                        edit_afternoon_dose = st.checkbox(
-                            "Edit Afternoon Dose", value=item['afternoon'])
-                        edit_night_dose = st.checkbox(
-                            "Edit Night Dose", value=item['night'])
-                        update_submitted = st.form_submit_button(
-                            "Update")  # Unique submit button
-
+                        edit_medicine_name = st.text_input("Edit Medicine Name", value=item['medicine_name'])
+                        edit_morning_dose = st.checkbox("Edit Morning Dose", value=item['morning'])
+                        edit_afternoon_dose = st.checkbox("Edit Afternoon Dose", value=item['afternoon'])
+                        edit_night_dose = st.checkbox("Edit Night Dose", value=item['night'])
+                        edit_dosage = st.text_input("Edit Dosage", value=item['dosage'])  # Editable dosage field
+                        update_submitted = st.form_submit_button("Update")  # Unique submit button
                     if update_submitted:
                         updated_schedule = {
                             "medicine_name": edit_medicine_name,
                             "morning": edit_morning_dose,
                             "afternoon": edit_afternoon_dose,
-                            "night": edit_night_dose
+                            "night": edit_night_dose,
+                            "dosage": edit_dosage  # Include updated dosage
                         }
-                        update_medicine_schedule(
-                            st.session_state['user'], item['medicine_name'], updated_schedule)
-                        st.success(
-                            f"Medicine '{item['medicine_name']}' updated successfully!")
-
-                    # Separate form for deletion with unique key
+                        update_medicine_schedule(st.session_state['user'], item['medicine_name'], updated_schedule)
+                        st.success(f"Medicine '{item['medicine_name']}' updated successfully!")
                     with st.form(f"delete_form_{item['medicine_name']}"):
                         delete_submitted = st.form_submit_button("Delete")
-
                     if delete_submitted:
-                        delete_medicine_schedule(
-                            st.session_state['user'], item['medicine_name'])
-                        st.success(
-                            f"Medicine '{item['medicine_name']}' deleted successfully!")
+                        delete_medicine_schedule(st.session_state['user'], item['medicine_name'])
+                        st.success(f"Medicine '{item['medicine_name']}' deleted successfully!")
 
-        # Add Reminder
         st.subheader("Set Reminder for Medicines")
         with st.form("reminder_form"):  # Unique form for reminder
-            reminder_medicine_name = st.selectbox(
-                "Select medicine", [item['medicine_name'] for item in schedule])
-            reminder_time = st.time_input(
-                "Reminder Time", datetime.datetime.now().time())
-            reminder_submitted = st.form_submit_button(
-                "Set Reminder")  # Submit inside form
-
+            reminder_medicine_name = st.selectbox("Select medicine", [item['medicine_name'] for item in schedule])
+            reminder_time = st.time_input("Reminder Time", datetime.datetime.now().time())
+            dosage = next(item['dosage'] for item in schedule if item['medicine_name'] == reminder_medicine_name)
+            reminder_submitted = st.form_submit_button("Set Reminder")  # Submit inside form
         if reminder_submitted:
-            store_reminder(
-                st.session_state['user'], reminder_medicine_name, reminder_time.strftime("%H:%M"))
-            st.success(
-                f"Reminder for '{reminder_medicine_name}' set for {reminder_time.strftime('%H:%M')}")
-
+            store_reminder(st.session_state['user'], reminder_medicine_name, reminder_time.strftime("%H:%M"), dosage)
+            st.success(f"Reminder for '{reminder_medicine_name}' set for {reminder_time.strftime('%H:%M')}")
+        
         # Display current reminders
         st.subheader("Your Reminders")
         reminders = get_reminders(st.session_state['user'])
 
         if reminders:
             for reminder in reminders:
-                reminder_time = datetime.datetime.strptime(
-                    reminder[3], "%H:%M").time()
+                reminder_time = datetime.datetime.strptime(reminder[3], "%H:%M").time()
+                dosage = reminder[4]  # Assuming the dosage is stored in the 5th column of the reminder tuple
 
                 # Unique form for editing reminders
-                with st.expander(f"Reminder: {reminder[2]} at {reminder[3]}", expanded=False):
+                with st.expander(f"Reminder: {reminder[2]} at {reminder[3]} (Dosage: {dosage})", expanded=False):
                     with st.form(f"edit_reminder_form_{reminder[0]}"):
-                        edit_reminder_time = st.time_input(
-                            "Edit Reminder Time", value=reminder_time)
-                        update_reminder_submitted = st.form_submit_button(
-                            "Update")
+                        edit_reminder_time = st.time_input("Edit Reminder Time", value=reminder_time)
+                        edit_dosage = st.text_input("Edit Dosage", value=dosage)  # Input for dosage
+                        update_reminder_submitted = st.form_submit_button("Update")
 
                     if update_reminder_submitted:
                         update_reminder(
-                            st.session_state['user'], reminder[2], edit_reminder_time.strftime("%H:%M"))
-                        st.success(
-                            f"Reminder for '{reminder[2]}' updated successfully!")
+                            st.session_state['user'], reminder[2], edit_reminder_time.strftime("%H:%M"), edit_dosage)
+                        st.success(f"Reminder for '{reminder[2]}' updated successfully!")
 
                     # Separate form for deletion
                     with st.form(f"delete_reminder_form_{reminder[0]}"):
-                        delete_reminder_submitted = st.form_submit_button(
-                            "Delete")
+                        delete_reminder_submitted = st.form_submit_button("Delete")
 
                     if delete_reminder_submitted:
                         delete_reminder(st.session_state['user'], reminder[2])
-                        st.success(
-                            f"Reminder for '{reminder[2]}' deleted successfully!")
+                        st.success(f"Reminder for '{reminder[2]}' deleted successfully!")
         else:
             st.write("No reminders set. Add reminders above.")
 
