@@ -276,53 +276,82 @@ elif page == "Dashboard":
         st.warning("You need to log in to access the Home page.")
         page = "Login"  # Redirect to the Login page
     else:
-        st.markdown("<div class='main-header'>Welcome to Your Medicine Reminder Dashboard! 💊</div>",
+        st.markdown("<div class='main-header' style='margin-bottom:50px'>Welcome to Your Medicine Reminder Dashboard! 💊</div>",
                     unsafe_allow_html=True)
+
+        # Quick Overview Section
         st.subheader("Quick Overview")
-        # Simplified CSS for custom styling
+
+        # CSS for styling
         st.markdown("""
         <style>
-        /* Styling for the features and benefits sections */
-        .section-container {
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease;
+        .metric-container {
+            background: #292929; /* Dark background */
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden; /* Prevent icon overflow */
         }
 
-        .section-container:hover {
+        .metric-container:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
-        .section-title {
-            color: #FF5722;
-            font-size: 24px;
-            margin-bottom: 10px;
+        .metric-value {
+            color: #FFEB3B; /* Bright yellow for visibility */
+            font-size: 40px; /* Larger font size for metrics */
             font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .section-item {
-            color: #FFFFFF;
-            font-size: 18px;
-            margin-bottom: 8px;
+        .metric-label {
+            color: #FFFFFF; /* White color for labels */
+            font-size: 24px; /* Size for the label */
+            margin-top: 0;
         }
 
+        .metric-icon {
+            # position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 35px;
+            margin-left: 150px;
+            transition: transform 0.3s ease; /* Smooth hover effect for icons */
+        }
+
+        .metric-container:hover .metric-icon {
+            transform: scale(1.1); /* Scale icon on hover */
+        }
         </style>
         """, unsafe_allow_html=True)
+
+        schedule = get_medicine_schedule(st.session_state['user'])
+        total_medicines = len(schedule)
+        active_reminders = len(get_reminders(st.session_state['user']))
+
+        # Two-column layout for metrics
         col1, col2 = st.columns(2)
+
+        # First column for Total Medicines
         with col1:
-            st.markdown("<div class='metric-container'>",
-                        unsafe_allow_html=True)
-            # Update this dynamically if needed
-            st.metric("Total Medicines", "5 medications")
+            st.markdown(
+                f"<div class='metric-value'>{total_medicines}<img src='https://img.icons8.com/ios-filled/50/FFEB3B/pill.png' class='metric-icon'/></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div class='metric-label'>Total Medicines</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
+
+        # Second column for Active Reminders
         with col2:
-            st.markdown("<div class='metric-container'>",
-                        unsafe_allow_html=True)
-            # Update this dynamically if needed
-            st.metric("Active Reminders", "3 reminders")
+            # st.markdown("<div class='metric-container'>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='metric-value'>{active_reminders}<img src='https://img.icons8.com/ios-filled/50/FF5722/alarm.png' class='metric-icon'/></div>", unsafe_allow_html=True)
+            st.markdown(
+                "<div class='metric-label'>Active Reminders</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
         st.subheader("Medication Schedule Overview")
@@ -358,6 +387,7 @@ elif page == "Dashboard":
         else:
             st.info(
                 "No medication schedule available yet. Add some medications to see insights.")
+
         # Displaying a motivational message for the user
         st.write(
             "**Explore your reminders and medication schedule to stay on top of your health!**")
@@ -390,6 +420,8 @@ elif page == "Dashboard":
             st.subheader("Emergency Contact Information")
             # Placeholder text
             st.write("This feature is yet to be implemented.")
+
+
 # Login Page
 elif page == "Login":
     st.header("User Login")
@@ -553,7 +585,6 @@ elif page == "Schedule & Reminders":
                             f"Reminder for '{reminder[2]}' deleted successfully!")
         else:
             st.write("No reminders set. Add reminders above.")
-
 
 elif page == "Upload":
     if not st.session_state['logged_in']:
