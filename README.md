@@ -57,8 +57,12 @@ streamlit run app.py
 
 ---
 
-## Contributing
-Contributions to improve Medicine Reminder are welcome. Please feel free to submit pull requests or open issues to discuss potential enhancements.
+## Project Demo
+
+<video controls>
+  <source src="project-demo.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>
 
 ---
 
@@ -102,6 +106,11 @@ Contributions to improve Medicine Reminder are welcome. Please feel free to subm
     - Extra large buttons and high contrast modes for users with visual impairments
 
 These future scopes and experimental features are designed to enhance the Medicine Reminder application, making it more comprehensive and tailored for elderly users' needs.
+
+---
+
+## Contributing
+Contributions to improve Medicine Reminder are welcome. Please feel free to submit pull requests or open issues to discuss potential enhancements.
 
 ---
 

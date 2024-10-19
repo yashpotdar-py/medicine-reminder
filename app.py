@@ -207,23 +207,23 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-"""
-Displays a sidebar menu with various options for the application.
 
-The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides a navigation menu with the following options:
+# Displays a sidebar menu with various options for the application.
 
-- Home
-- Register
-- Login
-- Dashboard
-- Schedule & Reminders
-- Upload
-- Voice Recognition
+# The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides a navigation menu with the following options:
 
-The menu is styled with a dark background, white text, and a hover effect. The selected option is highlighted with a blue background.
+# - Home
+# - Register
+# - Login
+# - Dashboard
+# - Schedule & Reminders
+# - Upload
+# - Voice Recognition
 
-The `default_index` parameter sets the Home option as the default selected option.
-"""
+# The menu is styled with a dark background, white text, and a hover effect. The selected option is highlighted with a blue background.
+
+# The `default_index` parameter sets the Home option as the default selected option.
+
 with st.sidebar:
     page = option_menu(
         "Main Menu",
@@ -246,36 +246,36 @@ with st.sidebar:
 
 
 
-"""
-Displays a sidebar menu with various options for the application.
 
-The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides an intuitive and visually appealing navigation menu with the following options:
+# Displays a sidebar menu with various options for the application.
 
-1. Home: The landing page of the application.
-2. Register: Allows new users to create an account.
-3. Login: Existing users can access their accounts.
-4. Dashboard: Provides an overview of the user's medication schedule and health information.
-5. Schedule & Reminders: Enables users to manage their medication schedules and set reminders.
-6. Upload: Allows users to upload relevant medical documents or prescription images.
-7. Voice Recognition: Implements voice commands for hands-free navigation and data input.
+# The sidebar menu is created using the `option_menu` function from the Streamlit library. It provides an intuitive and visually appealing navigation menu with the following options:
 
-Key Features of the Sidebar Menu:
-- Responsive Design: Adapts to different screen sizes for optimal user experience.
-- Intuitive Icons: Each menu option is accompanied by a relevant icon for quick visual recognition.
-- Stylish Appearance: The menu is styled with a sleek dark background (#262730) and white text for high contrast and readability.
-- Interactive Elements: Hover effects provide visual feedback to users, enhancing the interactive experience.
-- Highlighted Selection: The currently selected option is prominently displayed with a blue background (#1f6feb) for easy navigation tracking.
+# 1. Home: The landing page of the application.
+# 2. Register: Allows new users to create an account.
+# 3. Login: Existing users can access their accounts.
+# 4. Dashboard: Provides an overview of the user's medication schedule and health information.
+# 5. Schedule & Reminders: Enables users to manage their medication schedules and set reminders.
+# 6. Upload: Allows users to upload relevant medical documents or prescription images.
+# 7. Voice Recognition: Implements voice commands for hands-free navigation and data input.
 
-Customization and Styling:
-- The menu is fully customizable using the `styles` parameter in the `option_menu` function.
-- Font sizes are optimized for readability (18px for icons, 16px for text).
-- The container has a minimum height of 150vh to ensure full sidebar coverage on most screen sizes.
+# Key Features of the Sidebar Menu:
+# - Responsive Design: Adapts to different screen sizes for optimal user experience.
+# - Intuitive Icons: Each menu option is accompanied by a relevant icon for quick visual recognition.
+# - Stylish Appearance: The menu is styled with a sleek dark background (#262730) and white text for high contrast and readability.
+# - Interactive Elements: Hover effects provide visual feedback to users, enhancing the interactive experience.
+# - Highlighted Selection: The currently selected option is prominently displayed with a blue background (#1f6feb) for easy navigation tracking.
 
-Default Selection:
-The `default_index` parameter is set to 0, which means the "Home" option is initially selected when the application loads, providing a logical starting point for users.
+# Customization and Styling:
+# - The menu is fully customizable using the `styles` parameter in the `option_menu` function.
+# - Font sizes are optimized for readability (18px for icons, 16px for text).
+# - The container has a minimum height of 150vh to ensure full sidebar coverage on most screen sizes.
 
-This sidebar menu enhances the overall user experience by providing easy access to all major features of the Medicine Reminder App, ensuring intuitive navigation and a professional appearance.
-"""
+# Default Selection:
+# The `default_index` parameter is set to 0, which means the "Home" option is initially selected when the application loads, providing a logical starting point for users.
+
+# This sidebar menu enhances the overall user experience by providing easy access to all major features of the Medicine Reminder App, ensuring intuitive navigation and a professional appearance.
+
 
 # Home Page
 if page == "Home":
