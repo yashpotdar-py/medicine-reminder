@@ -6,7 +6,6 @@ Pillow
 gTTS
 pyttsx3
 SpeechRecognition
-pyaudio
 langchain
 langchain_community
 langchain_google_genai
