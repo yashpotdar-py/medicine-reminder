@@ -12,3 +12,4 @@ langchain_google_genai
 numpy
 plotly
 pypdf2
+streamlit-option-menu
